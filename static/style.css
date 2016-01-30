@@ -1,0 +1,31 @@
+html {
+    box-sizing: border-box;
+}
+* {
+    margin: 0;
+    padding: 0;
+}
+*,
+*:before,
+*:after {
+    box-sizing: inherit;
+}
+html,
+body {
+    background: #e3e3e3;
+    overflow: hidden;
+    -ms-touch-action: none;
+    touch-action: none;
+}
+
+
+canvas {
+    touch-action-delay: none;
+    -ms-touch-action: none;
+    touch-action: none;
+    -ms-interpolation-mode: nearest-neighbor;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: pixelated;
+    border: 1px solid black
+}
