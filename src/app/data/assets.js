@@ -44,6 +44,18 @@ default {
         key: 'llama',
         type: 'atlasJSONHash'
     },{
+        key: 'misc',
+        type: 'atlasJSONHash'
+    },{
+        key: 'icon',
+        type: 'atlasJSONHash'
+    },{
+        key: 'box',
+        type: 'atlasJSONHash'
+    },{
+        key: 'dialog',
+        type: 'atlasJSONHash'
+    },{
         key: 'island',
         type: 'image'
     },{

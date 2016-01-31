@@ -27,36 +27,92 @@ default class Game extends Phaser.State {
 
         this.physics.startSystem(Phaser.Physics.P2JS);
         this.physics.p2.defaultRestitution = 0.8;
+        
+        this.cursors = this.input.keyboard.createCursorKeys();
 
+        this.velocity = 200;
+        this.direction = 'front';
+        this.debug = false;
+
+
+        this.createMap();
+        this.createTrees();
+        this.characters = this.add.group();
+        this.createLlama();
+        this.createHam();
+        this.createDialog();
+
+
+        this.actionButton = this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+        this.actionButton.onDown.add(this.manageDialog, this);
+
+        var startBtt = this.add.button(25, 25, 'ui', this.click, this, 'back_idle', 'back_hover', 'back_press');
+        startBtt.anchor.set(0, 0);
+        startBtt.scale.setTo(0.2);
+        startBtt.fixedToCamera = true;
+
+    }
+
+    click() {
+        this.state.start('Menu');
+    }
+
+    createDialog(){
+        this.dialog = this.add.group();
+        this.dialog.fixedToCamera = true;
+        this.dialog.alpha = 0;
+        this.dialogBox = this.dialog.create(0,480,'dialog');
+        this.dialogBox.frame = 2;
+        this.dialogBox.anchor.set(0,1);
+        this.dialogtex = this.add.text(250,300, 'NAKED', {font: '50px Arial', fill: '#333333'});
+        this.dialog.add(this.dialogtex);
+    }
+
+    createMap () {
         this.map = this.game.add.tilemap('islandMap');
         this.map.addTilesetImage('island', 'islandMap');
+
         this.backgroundlayer = this.map.createLayer('background');
         this.backgroundlayer.resizeWorld();
 
-        this.layerobjects_tiles = this.physics.p2.convertCollisionObjects(this.map,'collisions');   // this converts the polylines of the tiled - object layer into physics bodies.. make sure to use the "polyline" tool and not the "polygon" tool - 
+        this.layerobjects_tiles = this.physics.p2.convertCollisionObjects(this.map,'objs');   // this converts the polylines of the tiled - object layer into physics bodies.. make sure to use the "polyline" tool and not the "polygon" tool - 
+    }
 
-        // this.islandWalk.scale.setTo(0.3);
-        // this.islandWalk.alpha = 0.5;
+    createTrees () {
+        this.trees = this.add.group();
+        var objData = [
+            { x: 580, y: 250, scale:0.8 , key:'bush'},
+            { x: 1050, y: 200, scale:1 , key:'bush'},
+            { x: 1000, y: 220, scale:1 , key:'bush'},
+            { x: 500, y: 150, scale:0.8 , key:'tree'},
+            { x: 600, y: 160, scale:0.8, key:'tree'},
+            { x: 800, y: 140, scale:0.7, key:'tree'},
+            { x: 680, y: 150, scale:1, key:'tree'},
+            { x: 350, y: 300, scale:0.6, key:'tree'},
+            { x: 320, y: 530, scale:1, key:'tree'},
+            { x: 900, y: 620, scale:0.8, key:'tree'},
+            { x: 1330, y: 530, scale:1 , key:'bush'},
+            { x: 1300, y: 350, scale:0.9, key:'tree'},
+            { x: 625, y: 285, scale:1, key:'laguna'},
+            { x: 1220, y: 390, scale:1, key:'tree'}
+        ];
+        
+        for (var i=0; i < objData.length; ++i) {
+            var t = this.trees.create(objData[i].x,objData[i].y,'misc', objData[i].key);
+            t.scale.setTo(objData[i].scale);
+        }
+        this.trees.sort('y', Phaser.Group.SORT_ASCENDING);
+    }
 
-        this.ham = this.add.sprite(this.worldSizeX/2, this.worldSizeY/2, 'ham', 'front_idle_01');
+    createHam () {
+        this.ham = this.characters.create(this.worldSizeX/2, this.worldSizeY/2, 'ham', 'front_idle_01');
         this.ham.anchor.set(0.5);
-        this.ham.scale.setTo(0.08);
 
-        this.llama = this.add.sprite(300, this.worldSizeY - 310, 'llama', 'llama_idle_01');
-        this.llama.scale.setTo(0.06);
-
-        this.physics.p2.enable(this.ham,true);
+        this.physics.p2.enable(this.ham,this.debug);
         this.ham.body.setZeroDamping();
         this.ham.body.setZeroVelocity();
         this.ham.body.fixedRotation = true;
         this.ham.body.setRectangle(25,50,5,10);
-
-
-        // this.physics.p2.enable(this.llama,true);
-        // this.llama.body.static = true;
-
-        this.cursors = this.input.keyboard.createCursorKeys();
-
 
         this.ham.animations.add('front_idle', Phaser.Animation.generateFrameNames('front_idle_', 1, 2, '', 2), 1, true);
         this.ham.animations.add('front_run', Phaser.Animation.generateFrameNames('front_run_', 1, 2, '', 2), 5, true);
@@ -68,65 +124,100 @@ default class Game extends Phaser.State {
         this.ham.animations.add('side_run', this.runFrames, 10, true);
 
         this.ham.animations.play('front_idle');
+        this.camera.follow(this.ham);
+        // this.trees.add(this.ham);
+
+        this.icon = this.add.sprite(this.ham.x, this.ham.y, 'icon');
+        this.icon.anchor.set(0.5);
+        this.icon.alpha = 0;
+        console.log(this.ham.body.debug);
+    }
+
+    createLlama () {
+        this.llama = this.characters.create(450, this.worldSizeY - 280, 'llama', 'llama_idle_01');
 
         this.llama.animations.add('idle', Phaser.Animation.generateFrameNames('llama_idle_', 1,2,'',2), 1, true);
         this.llama.animations.add('talk', Phaser.Animation.generateFrameNames('llama_talk_', 1,2,'',2), 1, true);
-        this.llama.animations.play('talk');
-
-        this.velocity = 200;
-        this.direction = 'front';
-
-        this.camera.follow(this.ham);
-
-        console.log(this.ham.body.debug);
-
+        this.llama.animations.play('idle');
+        this.physics.p2.enable(this.llama,this.debug);
+        this.llama.body.static = true;
+        this.llama.body.setRectangle(50,20,-5,40);
     }
 
     update() {
         this.movement();
+        this.checkOverlapManually();
+        this.characters.sort('y', Phaser.Group.SORT_ASCENDING);
     }
 
     render() {
-        this.game.debug.spriteInfo(this.ham,32,32);
+        // this.game.debug.spriteInfo(this.ham,32,32);
+        if(this.debug){
+            this.game.debug.text('Sprite z-depth: ' + this.ham.z, 10, 20);
+        }
     }
 
-    createPreviewBounds(x, y, w, h) {
+    checkOverlapManually() {
+        this.overlap = false;
+        var dx = this.ham.body.x - this.llama.body.x; //distance ship X to enemy X       
+        var dy = this.ham.body.y - this.llama.body.y; //distance ship Y to enemy Y        
+        var dist = Math.sqrt(dx * dx + dy * dy); //pythagoras ^^  (get the distance to each other)       
+        if (dist < this.llama.width + this.ham.width) { // if distance to each other is smaller than both radii together a collision/overlap is happening           
+            this.overlap = true;
+            this.showAction();
+        }else{
+            this.dialog.alpha = 0;
+            this.talk = 0;
+            this.icon.alpha = 0;
+        }
+    }
 
-        var sim = this.physics.p2;
 
-        //  If you want to use your own collision group then set it here and un-comment the lines below
-        // var mask = sim.boundsCollisionGroup.mask;
+    manageDialog(){
+        this.dialog.alpha = 1;
+        var dialogs = [
+            'AHHHHHHH',
+            'HEY YOU \n ARE NAKED!!'
+        ];
 
-        this.customBounds.left = new p2.Body({ mass: 0, position: [ sim.pxmi(x), sim.pxmi(y) ], angle: 1.5707963267948966 });
-        this.customBounds.left.addShape(new p2.Plane());
-        // customBounds.left.shapes[0].collisionGroup = mask;
 
-        this.customBounds.right = new p2.Body({ mass: 0, position: [ sim.pxmi(x + w), sim.pxmi(y) ], angle: -1.5707963267948966 });
-        this.customBounds.right.addShape(new p2.Plane());
-        // customBounds.right.shapes[0].collisionGroup = mask;
+        if(this.talk === dialogs.length){
+            this.fade();
+            this.dialog.alpha = 0;
+            this.llama.animations.play('idle');
+            this.dialogBox.frame = 2;
+            this.talk ++;
+        }else if (this.talk > dialogs.length){
+            this.click();
+        }else {
+            this.llama.animations.play('talk');
+            this.dialogtex.text = dialogs[this.talk];
+            if(this.talk > 0){
+                this.dialogBox.frame = 1;
+            }
+            this.talk ++;
+        }
 
-        this.customBounds.top = new p2.Body({ mass: 0, position: [ sim.pxmi(x), sim.pxmi(y) ], angle: -3.141592653589793 });
-        this.customBounds.top.addShape(new p2.Plane());
-        // customBounds.top.shapes[0].collisionGroup = mask;
+    }
 
-        this.customBounds.bottom = new p2.Body({ mass: 0, position: [ sim.pxmi(x), sim.pxmi(y + h) ] });
-        this.customBounds.bottom.addShape(new p2.Plane());
-        // customBounds.bottom.shapes[0].collisionGroup = mask;
-
-        sim.world.addBody(this.customBounds.left);
-        sim.world.addBody(this.customBounds.right);
-        sim.world.addBody(this.customBounds.top);
-        sim.world.addBody(this.customBounds.bottom);
-
+    showAction (){
+        this.icon.alpha = 1;
+        this.icon.x = this.ham.x + 50;
+        this.icon.scale.setTo(1,1);
+        if(this.direction === 'left'){
+            this.icon.x = this.ham.x - 50;
+            this.icon.scale.setTo(-1,1);
+        }
+        this.icon.y = this.ham.y - 35;
     }
 
     movement(){
         this.ham.body.setZeroVelocity();
-        this.ham.scale.setTo(0.08);
 
+        this.ham.scale.setTo(1,1);
         if (this.cursors.left.isDown) {
             this.ham.body.moveLeft(this.velocity);
-            this.ham.scale.setTo(-0.08, 0.08);
+            this.ham.scale.setTo(-1,1);
             this.direction = 'left';
             if (this.ham.animations.currentAnim !== 'side_run') {
                 this.ham.animations.play('side_run');
@@ -158,7 +249,7 @@ default class Game extends Phaser.State {
                     this.ham.animations.play('back_idle');
                     break;
                 case 'left':
-                    this.ham.scale.setTo(-0.08, 0.08);
+                    this.ham.scale.setTo(-1,1);
                     this.ham.animations.play('side_idle');
                     break;
                 case 'right':
@@ -170,6 +261,24 @@ default class Game extends Phaser.State {
             }
 
         }
+    }
+
+    fade() {
+        var spr_bg = this.game.add.graphics(0, 0);
+        spr_bg.fixedToCamera = true;
+        spr_bg.beginFill(0xFFFFFF, 1);
+        spr_bg.drawRect(0, 0, this.game.width, this.game.height);
+        spr_bg.alpha = 0;
+        spr_bg.endFill();
+        var txtContinue = this.add.text(25,150, 'The adventure of \n Ham & Eggs just begun ... ', {font: '40px Arial', fill: '#333333'});
+        txtContinue.fixedToCamera = true;
+        txtContinue.alpha= 0;
+        var ta = this.add.tween(spr_bg).to({ alpha: 1}, 500, 'Linear', true);
+        var tb = this.add.tween(txtContinue).to({ alpha: 1}, 1000, 'Linear', true);
+
+        ta.chain(tb);
+        
+
     }
 
 }
