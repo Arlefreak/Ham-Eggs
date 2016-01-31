@@ -9,14 +9,14 @@
 
 class SplashScreen extends Phaser.Group {
 
-  constructor (game) {
-    super(game);
+    constructor (game) {
+        super(game);
 
-    this.classType = Phaser.Image;
+        this.classType = Phaser.Image;
 
-    this.create(0, 0, 'splash-screen');
-    this.progressBar = this.create(82, 282, 'progress-bar');
-  }
+        this.create(0, 0, 'splash-screen');
+        this.progressBar = this.create(82, 282, 'progress-bar');
+    }
 
 }
 

@@ -13,32 +13,52 @@
  */
 
 
-export default {
+export
+default {
 
-  // - Boot Assets ------------------------------------------------------------
-  boot: [
-    {
-      key: 'splash-screen',
-      type: 'image'
+    // - Boot Assets ------------------------------------------------------------
+    boot: [{
+        key: 'splash-screen',
+        type: 'image'
     },
 
     {
-      key: 'progress-bar',
-      type: 'image'
+        key: 'progress-bar',
+        type: 'image'
     }
-  ],
+    ],
 
-  // - Game assets ------------------------------------------------------------
-  game: [
-    {
-      key: 'phaser',
-      type: 'image'
-    },
-    {
-      key: 'ham',
-      type: 'atlasJSONHash',
-      textureURL: 'sprites/ham.png',
-      atlasURL: 'sprites/ham.json'
+    // - Game assets ------------------------------------------------------------
+    game: [{
+        key: 'phaser',
+        type: 'image'
+    },{
+        key: 'ui',
+        type: 'atlasJSONHash'
+    },{
+        key: 'ham',
+        type: 'atlasJSONHash',
+        textureURL: 'sprites/ham.png',
+        atlasURL: 'sprites/ham.json'
+    },{
+        key: 'llama',
+        type: 'atlasJSONHash'
+    },{
+        key: 'island',
+        type: 'image'
+    },{
+        key: 'islandMap',
+        type: 'tilemap',
+        format: 'TILED_JSON'
+    },{
+        key: 'islandMap',
+        type: 'image'
+    },{
+        key: 'initial_ham',
+        type: 'image'
+    },{
+        key: 'initial_rayo',
+        type: 'image'
     }
 
     // Example: adding a background music.
@@ -55,6 +75,6 @@ export default {
     //   urls: [ 'sfx.m4a' ],
     //   jsonURL: 'sfx.json'
     // }
-  ]
+    ]
 
 };
